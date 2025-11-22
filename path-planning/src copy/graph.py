@@ -11,6 +11,15 @@ class Cell(object):
 """TODO: You may consider defining a class to store your node data. If so, do
 that here."""
 
+class Node(object):
+    def __init__(self):
+        self.parent = None
+        self.distance = float('inf')
+        self.cost = float('inf')
+        self.g_cost = float('inf')
+        self.h_cost = 0
+        self.visited = False
+
 
 class GridGraph:
     """Helper class to represent an occupancy grid map as a graph."""
@@ -46,6 +55,7 @@ class GridGraph:
         self.visited_cells = []  # Stores which cells have been visited in order for visualization.
 
         # TODO: Define any additional member variables to store node data.
+        self.nodes = None
 
     def as_string(self):
         """Returns the map data as a string for visualization."""
@@ -155,7 +165,10 @@ class GridGraph:
         None if the node has no parent. This function is used to trace back the
         path after graph search."""
         # TODO (P3): Return the parent of the node at the cell.
-        return None
+        if self.nodes is None:
+            return None
+        
+        return self.nodes[cell.j, cell.i].parent
 
     def init_graph(self):
         """Initializes the node data in the graph in preparation for graph search.
@@ -167,6 +180,10 @@ class GridGraph:
         self.visited_cells = []  # Reset visited cells for visualization.
 
         # TODO (P3): Initialize your graph nodes.
+        self.nodes = np.empty((self.height, self.width), dtype=object)
+        for j in range(self.height):
+            for i in range(self.width):
+                self.nodes[j,i] = Node()
 
     def find_neighbors(self, i, j):
         """Returns a list of the neighbors of the given cell. This should not
@@ -175,6 +192,17 @@ class GridGraph:
         # TODO (P3): Return a list of the indices of all the neighbors of the node
         # at cell (i, j). You should not include any cells that are outside of the
         # bounds of the graph.
+        directions = [
+            (0,1),
+            (0,-1),
+            (1,0),
+            (-1,0)
+        ]
+
+        for di, dj in directions:
+            ni , nj = i + di, j + dj
+            if self.is_cell_in_bounds(ni, nj):
+                nbrs.append(Cell(ni, nj))
 
         # HINT: The function is_cell_in_bounds() might come in handy.
         return nbrs
